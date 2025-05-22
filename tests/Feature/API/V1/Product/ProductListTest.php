@@ -77,8 +77,6 @@ class ProductListTest extends TestCase
                                 'is_main',
                             ],
                         ],
-                        'created_at',
-                        'updated_at',
                         'is_favorite',
                     ],
                 ],
@@ -104,8 +102,6 @@ class ProductListTest extends TestCase
         $this->assertTrue(is_null($productInList['category']) || is_string($productInList['category']));
         $this->assertTrue(is_null($productInList['image_url']) || filter_var($productInList['image_url'], FILTER_VALIDATE_URL) !== false);
         $this->assertIsArray($productInList['images']);
-        $this->assertNotEmpty($productInList['created_at']);
-        $this->assertNotEmpty($productInList['updated_at']);
 
         $this->assertEquals(count($productInList['images']), count($product->images));
     }

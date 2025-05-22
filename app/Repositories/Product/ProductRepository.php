@@ -37,8 +37,6 @@ class ProductRepository implements ProductRepositoryInterface
         Builder $query,
         array $relations = []
     ): Builder {
-        $userId = auth()->id();
-
         $query->when($dto->query, fn($q) =>
             $q->where('products.name', 'like', "%{$dto->query}%")
         );
@@ -54,7 +52,7 @@ class ProductRepository implements ProductRepositoryInterface
         );
 
         $query->withExists([
-            'favorites as is_favorite' => fn($q) => $q->where('user_id', $userId),
+            'favorites as is_favorite' => fn($q) => $q->where('user_id', $dto->userId),
         ]);
 
         return $query->with($relations);
