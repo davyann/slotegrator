@@ -1,0 +1,74 @@
+version: '3'
+services:
+    slotegrator-api-php:
+        container_name: slotegrator-api-php
+        hostname: slotegrator-api-php
+        restart: unless-stopped
+        build:
+            context: ./
+        volumes:
+            - .:/var/www/html
+        networks:
+            - slotegrator-api-network
+        depends_on:
+            -   slotegrator-api-postgres
+            -   slotegrator-api-postgres-test
+
+    slotegrator-api-nginx:
+        image: nginx:1.23.1-alpine
+        container_name: slotegrator-api-nginx
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "8080:80"
+        volumes:
+            - ./:/var/www/html
+            - ./nginx/:/etc/nginx/conf.d/
+        networks:
+            - slotegrator-api-network
+        depends_on:
+            - slotegrator-api-php
+
+    slotegrator-api-postgres:
+        image: postgres:14.4-alpine
+        container_name: slotegrator-api-postgres
+        restart: unless-stopped
+        ports:
+            - "5434:5432"
+        networks:
+            - slotegrator-api-network
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: mysecretpassword
+            POSTGRES_DB: postgres
+            POSTGRES_HOST_AUTH_METHOD: "trust"
+        hostname: slotegrator-api-postgres
+
+    slotegrator-api-postgres-test:
+        image: postgres:14.4-alpine
+        container_name: slotegrator-api-postgres-test
+        restart: unless-stopped
+        ports:
+            - "5435:5432"
+        networks:
+            - slotegrator-api-network
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: mysecretpassword
+            POSTGRES_DB: postgres
+            POSTGRES_HOST_AUTH_METHOD: "trust"
+        hostname: slotegrator-api-postgres-test
+
+    slotegrator-api-docs:
+        image: swaggerapi/swagger-ui
+        container_name: slotegrator-api-docs
+        ports:
+            - "8082:8080"
+        environment:
+            SWAGGER_JSON: /docs/swagger.json
+        volumes:
+             - ./swagger/swagger.json:/docs/swagger.json
+
+networks:
+    slotegrator-api-network:
+        driver: bridge
