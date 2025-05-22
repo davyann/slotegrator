@@ -1,0 +1,157 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Market API",
+        "version": "1.0.0",
+        "description": "RESTful API для управления продуктами и избранным списком"
+    },
+    "servers": [
+        {
+            "url": "https://api.market.com/api/v1"
+        }
+    ],
+    "paths": {
+        "/products": {
+            "get": {
+                "summary": "Получить список всех продуктов",
+                "tags": ["Products"],
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [
+                    { "name": "query", "in": "query", "description": "Поиск по имени", "schema": { "type": "string" } },
+                    { "name": "category", "in": "query", "description": "Слаг категории", "schema": { "type": "string" } },
+                    { "name": "sort", "in": "query", "description": "Поле сортировки (name, created_at и т.д.)", "schema": { "type": "string" } },
+                    { "name": "order", "in": "query", "description": "Порядок сортировки (asc или desc)", "schema": { "type": "string" } },
+                    { "name": "page", "in": "query", "schema": { "type": "integer" } },
+                    { "name": "per_page", "in": "query", "schema": { "type": "integer" } }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список продуктов",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": { "$ref": "#/components/schemas/Product" }
+                                        },
+                                        "meta": { "$ref": "#/components/schemas/Pagination" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/favorites": {
+            "get": {
+                "summary": "Получить избранные продукты",
+                "tags": ["Products"],
+                "security": [{ "bearerAuth": [] }],
+                "parameters": [
+                    { "name": "query", "in": "query", "schema": { "type": "string" } },
+                    { "name": "category", "in": "query", "schema": { "type": "string" } },
+                    { "name": "sort", "in": "query", "schema": { "type": "string" } },
+                    { "name": "order", "in": "query", "schema": { "type": "string" } },
+                    { "name": "page", "in": "query", "schema": { "type": "integer" } },
+                    { "name": "per_page", "in": "query", "schema": { "type": "integer" } }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список избранных продуктов",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": { "$ref": "#/components/schemas/Product" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Добавить продукт в избранное",
+                "tags": ["Products"],
+                "security": [{ "bearerAuth": [] }],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["product_id"],
+                                "properties": {
+                                    "product_id": { "type": "integer" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Продукт добавлен в избранное",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": { "type": "boolean" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "601": { "description": "Не удалось добавить продукт в избранные" }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        },
+        "schemas": {
+            "Product": {
+                "type": "object",
+                "properties": {
+                    "id": { "type": "integer" },
+                    "name": { "type": "string" },
+                    "description": { "type": "string" },
+                    "image_url": { "type": "string" },
+                    "category": { "type": "string" },
+                    "is_favorite": { "type": "boolean" , "description": "true — продукт в избранном; false — продукт не в избранном"},
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": { "type": "integer" },
+                                "url": { "type": "string" },
+                                "is_main": { "type": "boolean", "description": "true — изображение является главным; false — изображение не является главным"}
+                            }
+                        }
+                    }
+                }
+            },
+            "Pagination": {
+                "type": "object",
+                "properties": {
+                    "current_page": { "type": "integer" },
+                    "per_page": { "type": "integer" },
+                    "total": { "type": "integer" }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+.env*
+.git*
+README.md
+vite.config.js
+.editorconfig
+Makefile
